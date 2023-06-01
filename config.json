@@ -1,0 +1,47 @@
+{
+	"name": "EMA Schedule Generator",
+
+	"namespace": "Utah\\EMA",
+
+	"description": "This is an external module that takes in some dates, and generates random schedules for participant surveys.",
+
+	"documentation": "README.md",
+
+	"authors": [		{
+			"name": "Sumon Chattopadhyay",
+			"email": "sumon.chattopadhyay@utah.edu",
+			"institution": "University of Utah BMIC"
+		}
+	],
+
+	"permissions": [
+    
+  ],
+
+	"links": {
+		"project": [
+      {
+        "name": "Generate schedule",
+        "key": "scheduleGenerator",
+        "icon": "link",
+        "url": "example_plugin.php"
+      },
+		],
+		"control-center": [
+		]
+	},
+
+	"no-auth-pages": [
+	],
+
+	"project-settings": [
+
+	],
+
+	"compatibility": {
+		"php-version-min": "",
+		"php-version-max": "",
+		"redcap-version-min": "",
+		"redcap-version-max": ""
+	}
+}

@@ -24,8 +24,9 @@
         "name": "Generate schedule",
         "key": "scheduleGenerator",
         "icon": "link",
-        "url": "example_plugin.php"
-      },
+        "url": "example_plugin.php",
+        "show-header-and-footer": true
+      }
 		],
 		"control-center": [
 		]

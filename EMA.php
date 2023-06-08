@@ -8,11 +8,18 @@ class EMA extends \ExternalModules\AbstractExternalModule
   public $project_id = null;
   public $username = USERID; // a REDCap constant; see redcap_info() output on the dev doc page
 
+  // variables to store settings
+  // this is where slider variables and settings are configured
+  public $configuredVariables = [];
+
   public function __construct() {
 
     parent::__construct(); // call parent (AbstractExternalModule) constructor
 
     $this->project_id = $this->getProjectId(); // defined in AbstractExternalModule; will return project_id or null
+
+    // access EM project settings and return array of variables set
+    $this->configuredVariables = $this->getProjectSettings();
 
   }
 
@@ -37,7 +44,7 @@ class EMA extends \ExternalModules\AbstractExternalModule
   } //end function: generateRandomTime
 
   function debug_to_console($data, $text='Debug Object',) {
-    $output = $data;
+    $output = json_encode($data);
     if (is_array($output))
         $output = implode(',', $output);
 

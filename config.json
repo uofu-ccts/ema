@@ -43,7 +43,7 @@
     },
     {
        "key": "setup",
-       "name": "Initial Setup Parameters",
+       "name": "Survey Start Date and Duration",
        "required": true,
        "type": "sub_settings",
        "repeatable": false,
@@ -58,13 +58,6 @@
              "key": "num-days",
              "name": "Number of days to sent surveys field",
              "required": true,
-             "type": "field-list"
-          },
-          {
-             "key": "expire-range",
-             "name": "Time to Expire Survey field",
-             "required": true,
-             "repeatable": true,
              "type": "field-list"
           },
           {
@@ -114,8 +107,14 @@
                 "type": "field-list"
               },
               {
+                "key": "expire-range",
+                "name": "Field to SOURCE Time to Expire Survey",
+                "required": true,
+                "type": "field-list"
+              },
+              {
                 "key": "expire-time",
-                "name": "Survey time to expire field",
+                "name": "Field to SAVE Survey time to expire",
                 "required": true,
                 "type": "field-list"
               },

@@ -39,33 +39,57 @@ class EMA extends \ExternalModules\AbstractExternalModule
     
   }
 
-  function getSurveyStartData() {
-    /* $redcap_data will be structured as:
-            [
-                record_id => [
-                    event_id => [
-                        field_name => value,
-                        ...
-                        ],
-                    ...
-                    ],
-                ...
-            ]
-        */
-    
-    // last field in array will be part of the filter logic
-    // Only get setup variables where Setup instrument is complete
-    $filter_logic = '[' . end($this->survey_start_fields) . '] = "2"';
-    
-    $get_data = [
-      'project_id' => $this->project_id,
-      'return_format' => 'json',
-      'fields' => $this->survey_start_fields,
-      'filterLogic' => $filter_logic
-      ];
-    $redcap_data = \REDCap::getData($get_data);
+  // Returns an array of records that need a survey schedule generated
+  // Uses getRecordsWithSetup and getRecordsWithSchedule, and finds list of records that have a complete Survey Setup instrument, but blank Survey Schedule instruments
+  function getRecordsToSchedule($project_id, $setupCompletionField, $scheduleCompletionField) {
+    $setup_records = $this->getRecordsWithSetup($project_id, $setupCompletionField);
+    $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
 
-    return $redcap_data;
+    $records = array_diff($setup_records, $scheduled_records);
+
+    return $records;
+  }
+
+  // Returns a simple array of records that have a completed Survey Setup instrument
+  function getRecordsWithSetup($project_id, $setupCompletionField) {
+    $filter = "[event_1_arm_1][$setupCompletionField] = '2'";
+    $params = array(
+      'return_format' => 'array',
+      'fields' => array('record_id'),
+      'filterLogic' => $filter
+    );
+    $data = \REDCap::getData($params);
+
+    $records = [];
+    foreach ($data as $record) {
+      foreach ($record as $event) {
+        $records[] = $event['record_id'];
+      }
+    }
+
+    return $records;
+  }
+
+  // Returns a simple array of records that have a non-blank Survey Schedule instrument for day 1 of surveys
+  function getRecordsWithSchedule($project_id, $scheduleCompletionField) {
+    $filter = "[day_1_arm_1][$scheduleCompletionField] = '0' OR [day_1_arm_1][$scheduleCompletionField] = '1' OR [day_1_arm_1][$scheduleCompletionField] = '2'";
+    $params = array(
+      'return_format' => 'array',
+      'fields' => array('record_id'),
+      'filterLogic' => $filter
+    );
+    $data = \REDCap::getData($params);
+
+    $records = [];
+    foreach ($data as $record) {
+      foreach ($record as $event) {
+        if ($event['record_id'] != '') {
+          $records[] = $event['record_id'];
+        }
+      }
+    }
+
+    return $records;
   }
 
   function generateRandomTime($startTime, $timeRange) {

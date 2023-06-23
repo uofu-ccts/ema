@@ -4,10 +4,8 @@ use RCView;
 
 echo RCView::h4([], "Schedule Generator");
 
-//try generating random time
+$arrProjectEventNames = REDCap::getEventNames(TRUE);
 
-$randomTime = $module->generateRandomTime(9, 180);
+$module->debug_to_console($arrProjectEventNames);
 
-echo RCView::p([], $randomTime);
-
-$module->debug_to_console($module->configuredVariables, "Project variables");
+$module->debug_show($arrProjectEventNames);

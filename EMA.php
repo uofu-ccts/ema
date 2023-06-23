@@ -10,7 +10,11 @@ class EMA extends \ExternalModules\AbstractExternalModule
 
   // variables to store settings
   // this is where slider variables and settings are configured
-  public $configuredVariables = [];
+  public $configured_variables = [];
+
+  //list of fields
+  public $survey_start_fields = [];
+  public $survey_save_fields = [];
 
   public function __construct() {
 
@@ -18,13 +22,53 @@ class EMA extends \ExternalModules\AbstractExternalModule
 
     $this->project_id = $this->getProjectId(); // defined in AbstractExternalModule; will return project_id or null
 
-    // access EM project settings and return array of variables set
-    $this->configuredVariables = $this->getProjectSettings();
-
   }
 
-  function generateRandomTime($startTime, $timeRange)
-  {
+  
+
+  function getSurveyStartSettings() {
+
+    $configured_variables = $this->getProjectSettings();
+
+    array_push($this->survey_start_fields,
+                $configured_variables["start-date"]["value"][0],
+                $configured_variables["num-days"]["value"][0],
+                $configured_variables["status"]["value"][0],
+                $configured_variables["setup-completion"]["value"][0]
+                );
+    
+  }
+
+  function getSurveyStartData() {
+    /* $redcap_data will be structured as:
+            [
+                record_id => [
+                    event_id => [
+                        field_name => value,
+                        ...
+                        ],
+                    ...
+                    ],
+                ...
+            ]
+        */
+    
+    // last field in array will be part of the filter logic
+    // Only get setup variables where Setup instrument is complete
+    $filter_logic = '[' . end($this->survey_start_fields) . '] = "2"';
+    
+    $get_data = [
+      'project_id' => $this->project_id,
+      'return_format' => 'json',
+      'fields' => $this->survey_start_fields,
+      'filterLogic' => $filter_logic
+      ];
+    $redcap_data = \REDCap::getData($get_data);
+
+    return $redcap_data;
+  }
+
+  function generateRandomTime($startTime, $timeRange) {
     $todaysDateMDY = date("m/d/Y");
 
     $objDateTime = \DateTime::createFromFormat('m/d/Y', $todaysDateMDY);

@@ -88,6 +88,12 @@
            "type": "field-list"
          },
          {
+           "key": "schedule-completion",
+           "name": "Survey Schedule instrument completion field",
+           "required": true,
+           "type": "field-list"
+         },
+         {
             "key": "survey",
             "name": "Survey Parameters",
             "required": true,
@@ -125,12 +131,6 @@
                 "type": "field-list"
               }
             ]
-         },
-         {
-           "key": "schedule-completion",
-           "name": "Survey Schedule instrument completion field",
-           "required": true,
-           "type": "field-list"
          }
       ]
     }

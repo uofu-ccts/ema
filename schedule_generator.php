@@ -4,6 +4,8 @@ use RCView;
 
 echo RCView::h4([], "Schedule Generator");
 
+$errorLog = [];
+
 $setupCompletionField = implode($module->getProjectSetting('setup-completion', $project_id));
 $surveyStartField = implode($module->getProjectSetting('start-date', $project_id));
 $surveyStatusField = implode($module->getProjectSetting('status', $project_id));
@@ -36,8 +38,18 @@ foreach ($records as $record) {
 
   $scheduleParams = $module->getScheduleParams($project_id, $record, $surveyStartField, $surveyDurationField);
 
-  $numDays = $scheduleParams['bi_survey_num_days'];
-  $startDate = new DateTimeImmutable($scheduleParams['bi_survey_start_date']);
+  if (!$scheduleParams[$surveyDurationField]) {
+    array_push($erroLog, "$surveyDurationField is missing for record $record. Moving on to next record...");
+    continue;
+  }
+
+  if (!$scheduleParams[$surveyStartField]) {
+    array_push($erroLog, "$surveyStartField is missing for record $record. Moving on to next record...");
+    continue;
+  }
+
+  $numDays = $scheduleParams[$surveyDurationField];
+  $startDate = new DateTimeImmutable($scheduleParams[$surveyStartField]);
 
   print_r($startDate);
   print_r("<br>");

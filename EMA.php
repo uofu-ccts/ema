@@ -24,26 +24,11 @@ class EMA extends \ExternalModules\AbstractExternalModule
 
   }
 
-  
-
-  function getSurveyStartSettings() {
-
-    $configured_variables = $this->getProjectSettings();
-
-    array_push($this->survey_start_fields,
-                $configured_variables["start-date"]["value"][0],
-                $configured_variables["num-days"]["value"][0],
-                $configured_variables["status"]["value"][0],
-                $configured_variables["setup-completion"]["value"][0]
-                );
-    
-  }
-
   function generateSchedules($records) {
 
   }
 
-  function getScheduleParams($project_id, $record, $surveyStartField, $surveyDurationField) {
+  function getDateParams($project_id, $record, $surveyStartField, $surveyDurationField) {
     $event_id = \REDCap::getEventIdFromUniqueEvent("event_1_arm_1");
     
     $fields = array($surveyStartField, $surveyDurationField);
@@ -58,8 +43,25 @@ class EMA extends \ExternalModules\AbstractExternalModule
     return $data[$record][$event_id];
   }
 
-  // Returns an array of records that need a survey schedule generated
-  // Uses getRecordsWithSetup and getRecordsWithSchedule, and finds list of records that have a complete Survey Setup instrument, but blank Survey Schedule instruments
+  function getTimeParams($project_id, $record, $rangeFields) {
+    $event_id = \REDCap::getEventIdFromUniqueEvent("event_1_arm_1");
+    
+    $fields = $rangeFields;
+    $params = array(
+      'records' => $record,
+      'events' => 'event_1_arm_1',
+      'return_format' => 'array',
+      'fields' => $fields
+    );
+    $data = \REDCap::getData($params);
+
+    return $data[$record][$event_id];
+  }
+
+  /* 
+    Returns an array of records that need a survey schedule generated
+    Uses getRecordsWithSetup and getRecordsWithSchedule, and finds list of records that have a complete Survey Setup instrument, but blank Survey Schedule instruments
+  */
   function getRecordsToSchedule($project_id, $setupCompletionField, $scheduleCompletionField, $surveyStatusField) {
     $setup_records = $this->getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField);
     $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
@@ -69,7 +71,9 @@ class EMA extends \ExternalModules\AbstractExternalModule
     return $records;
   }
 
-  // Returns a simple array of records that have a completed Survey Setup instrument
+  /*
+    Returns a simple array of records that have a completed Survey Setup instrument
+  */
   function getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField) {
     $filter = "[event_1_arm_1][$setupCompletionField] = '2' AND [event_1_arm_1][$surveyStatusField] = '1'";
     $params = array(
@@ -89,7 +93,9 @@ class EMA extends \ExternalModules\AbstractExternalModule
     return $records;
   }
 
-  // Returns a simple array of records that have a non-blank Survey Schedule instrument for day 1 of surveys
+  /*
+    Returns a simple array of records that have a non-blank Survey Schedule instrument for day 1 of surveys
+  */
   function getRecordsWithSchedule($project_id, $scheduleCompletionField) {
     $filter = "[day_1_arm_1][$scheduleCompletionField] = '0' OR [day_1_arm_1][$scheduleCompletionField] = '1' OR [day_1_arm_1][$scheduleCompletionField] = '2'";
     $params = array(
@@ -111,24 +117,14 @@ class EMA extends \ExternalModules\AbstractExternalModule
     return $records;
   }
 
-  function generateRandomTime($startTime, $timeRange) {
-    $todaysDateMDY = date("m/d/Y");
-
-    $objDateTime = \DateTime::createFromFormat('m/d/Y', $todaysDateMDY);
-    $objDateTime->setTime($startTime, 0);
-
-    //generate random minutes, 0 - 180, 3 hour time block
-    $intRangeMin = 0;
-    $intRangeMax = $timeRange - 1;
-    $randomNumber  = mt_rand($intRangeMin, $intRangeMax);
-
-    $objDateTime->modify( "+{$randomNumber} minutes" );
-
-    $randomTime  = $objDateTime->format('H:i'); 
-
-    return $randomTime;
-    
-  } //end function: generateRandomTime
+  function generateRandomTime($startTime, $endTime) {
+    $startTimestamp = strtotime($startTime);
+    $endTimestamp = strtotime($endTime);
+  
+    $randomTimestamp = mt_rand($startTimestamp, $endTimestamp);
+  
+    return date('H:i', $randomTimestamp);
+  }
 
   function debug_to_console($data, $text='Debug Object',) {
     $output = json_encode($data);

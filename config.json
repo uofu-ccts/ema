@@ -113,6 +113,12 @@
                 "type": "field-list"
               },
               {
+                "key": "start-range",
+                "name": "Field to SOURCE Time to Start Survey",
+                "required": true,
+                "type": "field-list"
+              },
+              {
                 "key": "expire-range",
                 "name": "Field to SOURCE Time to Expire Survey",
                 "required": true,

@@ -39,9 +39,7 @@ if (count($records) > 0) {
   $table = $table . 
             "</tbody>
             </table>
-            <input type='submit' name='allRecords' class='btn btn-success' value='allRecords' />
-              <button type='button' class='btn btn-success' id='allRecords'>Generate schedule for all records</button>
-            </input>
+            <button type='button' class='btn btn-success' id='allRecords'>Generate schedule for all records</button>
             </form>
             ";
   $html = $html . $table;
@@ -69,16 +67,3 @@ if (count($records) > 0) {
 // print_r($response);
 
 print_r($html);
-
-if(array_key_exists('button1', $_POST)) {
-  button1();
-}
-else if(array_key_exists('allRecords', $_POST)) {
-  button2();
-}
-function button1() {
-  echo "This is Button1 that is selected";
-}
-function button2() {
-  echo "This is Button2 that is selected";
-}

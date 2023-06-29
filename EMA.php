@@ -254,18 +254,46 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function cron($cronInfo){
+  function cron() {
     foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
       $this->setProjectId($localProjectId);
   
-      // If setProjectId() is not available in your REDCap version, the following will have the same effect:
-      $_GET['pid'] = $localProjectId;
-  
       // Project specific method calls go here.
-      $someValue = $this->getProjectSetting('some_key');
+      $sendDateField = implode($this->getProjectSetting('send-date'));
+      $this->scheduleCompletionField = implode($this->getProjectSetting('schedule-completion'));
+      $sendDateField = implode($this->getProjectSetting('send-date'));
+      $sendTimeFields = $this->getProjectSetting('send-time')[0];
+      $sendFlagFields = $this->getProjectSetting('send-flag')[0];
+      $expireTimeFields = $this->getProjectSetting('expire-time')[0];
+      $expireFlagFields = $this->getProjectSetting('expire-flag')[0];
+
+      $todaysRecords = $this->getTodaysRecords($this->project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
+
+      $this->debug_to_console($todaysRecords);
     }
   
-    return "The \"{$cronInfo['cron_description']}\" cron job completed successfully.";
+    return "The cron job completed successfully.";
+  }
+
+  function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields) {
+    $todaysDate = date("Y-m-d");
+
+    $filter = "[$sendDateField] = '$todaysDate'";
+
+    $fields = array('record_id');
+
+    array_push($fields, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
+
+    $this->debug_to_console($fields);
+
+    $params = array(
+      'return_format' => 'array',
+      'fields' => array('record_id'),
+      'filterLogic' => $filter
+    );
+    $data = \REDCap::getData($params);
+
+    return $data;
   }
 
   function debug_to_console($data, $text='Debug Object',) {

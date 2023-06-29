@@ -14,6 +14,8 @@
 		}
 	],
 
+  "framework-version": 7,
+
 	"permissions": [
     
   ],
@@ -25,6 +27,13 @@
         "key": "scheduleGenerator",
         "icon": "link",
         "url": "schedule_generator.php",
+        "show-header-and-footer": true
+      },
+      {
+        "name": "Cron Tester",
+        "key": "cronTester",
+        "icon": "link",
+        "url": "cron_tester.php",
         "show-header-and-footer": true
       }
 		],

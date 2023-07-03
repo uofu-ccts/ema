@@ -11,13 +11,19 @@ class EMA extends AbstractExternalModule
   public $username = USERID; // a REDCap constant; see redcap_info() output on the dev doc page
   public $errorLog = [];
 
+  public $generatorUrl = "";
+
+  //prescribed events
+  public $setupEvent = "survey_setup_arm_1";
+  public $firstDayEvent = "day_1_arm_1";
+
   //list of fields, will be populated by getFieldNames
-  public $setupCompletionField = "";
-  public $surveyStartField = "";
-  public $surveyStatusField = "";
-  public $surveyDurationField = "";
-  public $scheduleCompletionField = "";
-  public $sendDateField = "";
+  public $setupCompletionField = "ema_survey_setup_complete";
+  public $surveyStartField = "ema_survey_start_date";
+  public $surveyStatusField = "ema_survey_status";
+  public $surveyDurationField = "ema_survey_num_days";
+  public $scheduleCompletionField = "ema_survey_schedule_complete";
+  public $sendDateField = "ema_survey_send_date";
   public $sendTimeFields = [];
   public $sendFlagFields = [];
   public $startRangeFields = [];
@@ -31,21 +37,17 @@ class EMA extends AbstractExternalModule
 
     $this->project_id = $this->getProjectId(); // defined in AbstractExternalModule; will return project_id or null
 
+    $this->generatorUrl = $this->getUrl("generateSchedule.php?pid={$this->project_id}");
+
   }
 
   function getFieldNames($project_id) {
-    $this->setupCompletionField = implode($this->getProjectSetting('setup-completion', $project_id));
-    $this->surveyStartField = implode($this->getProjectSetting('start-date', $project_id));
-    $this->surveyStatusField = implode($this->getProjectSetting('status', $project_id));
-    $this->surveyDurationField = implode($this->getProjectSetting('num-days', $project_id));
-    $this->scheduleCompletionField = implode($this->getProjectSetting('schedule-completion', $project_id));
-    $this->sendDateField = implode($this->getProjectSetting('send-date', $project_id));
-    $this->sendTimeFields = $this->getProjectSetting('send-time', $project_id)[0];
-    $this->sendFlagFields = $this->getProjectSetting('send-flag', $project_id)[0];
-    $this->startRangeFields = $this->getProjectSetting('start-range', $project_id)[0];
-    $this->expireRangeFields = $this->getProjectSetting('expire-range', $project_id)[0];
-    $this->expireTimeFields = $this->getProjectSetting('expire-time', $project_id)[0];
-    $this->expireFlagFields = $this->getProjectSetting('expire-flag', $project_id)[0];
+    $this->sendTimeFields = $this->getProjectSetting('send-time', $project_id);
+    $this->sendFlagFields = $this->getProjectSetting('send-flag', $project_id);
+    $this->startRangeFields = $this->getProjectSetting('start-range', $project_id);
+    $this->expireRangeFields = $this->getProjectSetting('expire-range', $project_id);
+    $this->expireTimeFields = $this->getProjectSetting('expire-time', $project_id);
+    $this->expireFlagFields = $this->getProjectSetting('expire-flag', $project_id);
   }
 
   function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog) {
@@ -90,7 +92,7 @@ class EMA extends AbstractExternalModule
       $numDays = $dateParams[$surveyDurationField];
       $startDate = new \DateTimeImmutable($dateParams[$surveyStartField]);
 
-      print_r('Current record: ' . $record . '<br>');
+      print_r('<strong>Record ID: ' . $record . '</strong><br>');
 
       $dataToSave[$record] = [];
 
@@ -105,10 +107,11 @@ class EMA extends AbstractExternalModule
 
         $dataToSave[$record][$unique_event_id][$sendDateField] = $currentSurveyDate;
 
-        print_r('Current event: ' . $currentRedcapEvent);
+        print_r('Survey event name: ' . $currentRedcapEvent);
         print_r("<br>");
         print_r('Scheduled survey date: ' . $currentSurveyDate);
         print_r("<br>");
+        print_r('Scheduled survey times: ');
 
         for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
           $startTime = $startParams[$startRangeFields[$currentSurvey]];
@@ -123,14 +126,18 @@ class EMA extends AbstractExternalModule
           $dataToSave[$record][$unique_event_id][$expireTimeFields[$currentSurvey]] = $expireTime;
           $dataToSave[$record][$unique_event_id][$expireFlagFields[$currentSurvey]] = $expireFlag;
 
-          print_r('Time to send survey: ' . $sendTime);
-          print_r("<br>");
-          print_r('Flag to send survey: ' . $sendFlag);
-          print_r("<br>");
-          print_r('Time to expire survey: ' . $expireTime);
-          print_r("<br>");
-          print_r('Flag to expire survey: ' . $expireFlag);
-          print_r("<br>");
+          if ($currentSurvey > 0) {
+            print_r(', ');
+          }
+          print_r($sendTime);
+          // print_r('Time to send survey: ' . $sendTime);
+          // print_r("<br>");
+          // print_r('Flag to send survey: ' . $sendFlag);
+          // print_r("<br>");
+          // print_r('Time to expire survey: ' . $expireTime);
+          // print_r("<br>");
+          // print_r('Flag to expire survey: ' . $expireFlag);
+          // print_r("<br>");
         }
 
         print_r("<br>");
@@ -141,12 +148,12 @@ class EMA extends AbstractExternalModule
   }
 
   function getDateParams($project_id, $record, $surveyStartField, $surveyDurationField) {
-    $event_id = \REDCap::getEventIdFromUniqueEvent("event_1_arm_1");
+    $event_id = \REDCap::getEventIdFromUniqueEvent($this->setupEvent);
     
     $fields = array($surveyStartField, $surveyDurationField);
     $params = array(
       'records' => $record,
-      'events' => 'event_1_arm_1',
+      'events' => $this->setupEvent,
       'return_format' => 'array',
       'fields' => $fields
     );
@@ -156,12 +163,12 @@ class EMA extends AbstractExternalModule
   }
 
   function getTimeParams($project_id, $record, $rangeFields) {
-    $event_id = \REDCap::getEventIdFromUniqueEvent("event_1_arm_1");
+    $event_id = \REDCap::getEventIdFromUniqueEvent($this->setupEvent);
     
     $fields = $rangeFields;
     $params = array(
       'records' => $record,
-      'events' => 'event_1_arm_1',
+      'events' => $this->setupEvent,
       'return_format' => 'array',
       'fields' => $fields
     );
@@ -187,7 +194,7 @@ class EMA extends AbstractExternalModule
     Returns a simple array of records that have a completed Survey Setup instrument
   */
   function getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField) {
-    $filter = "[event_1_arm_1][$setupCompletionField] = '2' AND [event_1_arm_1][$surveyStatusField] = '1'";
+    $filter = "[$this->setupEvent][$setupCompletionField] = '2' AND [$this->setupEvent][$surveyStatusField] = '1'";
     $params = array(
       'return_format' => 'array',
       'fields' => array('record_id'),
@@ -209,7 +216,7 @@ class EMA extends AbstractExternalModule
     Returns a simple array of records that have a non-blank Survey Schedule instrument for day 1 of surveys
   */
   function getRecordsWithSchedule($project_id, $scheduleCompletionField) {
-    $filter = "[day_1_arm_1][$scheduleCompletionField] = '0' OR [day_1_arm_1][$scheduleCompletionField] = '1' OR [day_1_arm_1][$scheduleCompletionField] = '2'";
+    $filter = "[$this->firstDayEvent][$scheduleCompletionField] = '0' OR [$this->firstDayEvent][$scheduleCompletionField] = '1' OR [$this->firstDayEvent][$scheduleCompletionField] = '2'";
     $params = array(
       'return_format' => 'array',
       'fields' => array('record_id'),
@@ -282,13 +289,29 @@ class EMA extends AbstractExternalModule
 
     $fields = array('record_id');
 
-    array_push($fields, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
+    foreach ($sendTimeFields as $currentField) {
+      array_push($fields, $currentField);
+    }
+
+    foreach ($sendFlagFields as $currentField) {
+      array_push($fields, $currentField);
+    }
+
+    foreach ($expireTimeFields as $currentField) {
+      array_push($fields, $currentField);
+    }
+
+    foreach ($expireFlagFields as $currentField) {
+      array_push($fields, $currentField);
+    }
+
+    //array_push($fields, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
 
     $this->debug_to_console($fields);
 
     $params = array(
       'return_format' => 'array',
-      'fields' => array('record_id'),
+      'fields' => $fields,
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);

@@ -35,7 +35,7 @@ $dataToSave = $module->generateSchedules($records,
                                           $module->errorLog
                                         );
 
-$response = $module->saveSchedules($dataToSave);
+$response = $module->saveToRedcap($module->project_id, $dataToSave);
 
 print_r($response);
 

@@ -97,6 +97,12 @@
           "name": "Survey expire flag field",
           "required": true,
           "type": "field-list"
+        },
+        {
+          "key": "survey-complete",
+          "name": "Survey completion field",
+          "required": true,
+          "type": "field-list"
         }
       ]
     }

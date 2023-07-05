@@ -152,6 +152,7 @@ class EMA extends AbstractExternalModule
     
     $fields = array($surveyStartField, $surveyDurationField);
     $params = array(
+      'project_id' => $project_id,
       'records' => $record,
       'events' => $this->setupEvent,
       'return_format' => 'array',
@@ -167,6 +168,7 @@ class EMA extends AbstractExternalModule
     
     $fields = $rangeFields;
     $params = array(
+      'project_id' => $project_id,
       'records' => $record,
       'events' => $this->setupEvent,
       'return_format' => 'array',
@@ -196,6 +198,7 @@ class EMA extends AbstractExternalModule
   function getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField) {
     $filter = "[$this->setupEvent][$setupCompletionField] = '2' AND [$this->setupEvent][$surveyStatusField] = '1'";
     $params = array(
+      'project_id' => $project_id,
       'return_format' => 'array',
       'fields' => array('record_id'),
       'filterLogic' => $filter
@@ -218,6 +221,7 @@ class EMA extends AbstractExternalModule
   function getRecordsWithSchedule($project_id, $scheduleCompletionField) {
     $filter = "[$this->firstDayEvent][$scheduleCompletionField] = '0' OR [$this->firstDayEvent][$scheduleCompletionField] = '1' OR [$this->firstDayEvent][$scheduleCompletionField] = '2'";
     $params = array(
+      'project_id' => $project_id,
       'return_format' => 'array',
       'fields' => array('record_id'),
       'filterLogic' => $filter
@@ -245,8 +249,9 @@ class EMA extends AbstractExternalModule
     return date('H:i', $randomTimestamp);
   }
 
-  function saveSchedules($dataToSave) {
+  function saveToRedcap($project_id, $dataToSave) {
     $params = array(
+      'project_id' => $project_id,
       'dataFormat' => 'array',
       'data' => $dataToSave,
       'overwriteBehavior' => 'normal',
@@ -261,28 +266,60 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function cron() {
+  function surveyScheduleChecker($cronInfo) {
     foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
       $this->setProjectId($localProjectId);
   
       // Project specific method calls go here.
-      $sendDateField = implode($this->getProjectSetting('send-date'));
-      $this->scheduleCompletionField = implode($this->getProjectSetting('schedule-completion'));
-      $sendDateField = implode($this->getProjectSetting('send-date'));
-      $sendTimeFields = $this->getProjectSetting('send-time')[0];
-      $sendFlagFields = $this->getProjectSetting('send-flag')[0];
-      $expireTimeFields = $this->getProjectSetting('expire-time')[0];
-      $expireFlagFields = $this->getProjectSetting('expire-flag')[0];
+      $sendTimeFields = $this->getProjectSetting('send-time');
+      $sendFlagFields = $this->getProjectSetting('send-flag');
+      $expireTimeFields = $this->getProjectSetting('expire-time');
+      $expireFlagFields = $this->getProjectSetting('expire-flag');
+      $surveyCompleteFields = $this->getProjectSetting('survey-complete');
 
-      $todaysRecords = $this->getTodaysRecords($this->project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
+      $todaysRecords = $this->getTodaysRecords($this->project_id, $this->sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
-      $this->debug_to_console($todaysRecords);
+      $dataToSave = [];
+      foreach ($todaysRecords as $recordKey => $record) {
+        $dataToSave[$recordKey] = [];
+        foreach($record as $eventKey => $event) {
+          $dataToSave[$recordKey][$eventKey] = [];
+          for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+            $currentSendTime = $event[$sendTimeFields[$currentSurvey]];
+            $currentExpireTime = $event[$expireTimeFields[$currentSurvey]];
+
+            // send surveys that have hit time and haven't been sent yet
+            if ($this->isBeforeNow($currentSendTime) && $event[$sendTimeFields[$currentSurvey]] != 1) {
+              $dataToSave[$recordKey][$eventKey][$sendFlagFields[$currentSurvey]] = 1;
+            }
+
+            // has survey been completed? mark that
+            if ($event[$surveyCompleteFields[$currentSurvey]] == 1) {
+              $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 2;
+            }
+
+            // has survey reached expiration time before completion? mark that
+            if ($this->isBeforeNow($currentExpireTime) && $event[$surveyCompleteFields[$currentSurvey]] != 1) {
+              $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 1;
+            }
+
+            if ($currentSurvey == count($sendTimeFields)-1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0 ) {
+              // last survey has been flagged expired or completed, flag entire instrument for this event complete
+              $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 1;
+            }
+          }
+        }
+      }
+
+      $response = $this->saveToRedcap($this->project_id, $dataToSave);
+      $responseText = implode($response);
+
     }
   
-    return "The cron job completed successfully.";
+    return "The \"{$cronInfo['cron_description']}\" cron job completed with the following response: $responseText.";
   }
 
-  function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields) {
+  function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields) {
     $todaysDate = date("Y-m-d");
 
     $filter = "[$sendDateField] = '$todaysDate'";
@@ -305,11 +342,14 @@ class EMA extends AbstractExternalModule
       array_push($fields, $currentField);
     }
 
-    //array_push($fields, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields);
+    foreach ($surveyCompleteFields as $currentField) {
+      array_push($fields, $currentField);
+    }
 
     $this->debug_to_console($fields);
 
     $params = array(
+      'project_id' => $project_id,
       'return_format' => 'array',
       'fields' => $fields,
       'filterLogic' => $filter
@@ -317,6 +357,18 @@ class EMA extends AbstractExternalModule
     $data = \REDCap::getData($params);
 
     return $data;
+  }
+
+  function isBeforeNow($inputTime) {
+    $currentTime = time();
+    $inputTime = strtotime($inputTime);
+  
+    if ($inputTime <= $currentTime) {
+      $this->debug_to_console("ding", "isBeforeNow method");
+      return true;
+    }
+
+    return false;
   }
 
   function debug_to_console($data, $text='Debug Object',) {

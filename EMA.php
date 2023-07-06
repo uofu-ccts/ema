@@ -54,11 +54,6 @@ class EMA extends AbstractExternalModule
     $dataToSave = [];
     foreach ($records as $record) {
 
-      $this->debug_to_console($project_id, "project_id");
-      $this->debug_to_console($record, "record");
-      $this->debug_to_console($surveyStartField, "surveystartfield");
-      $this->debug_to_console($surveyDurationField, "surveydurationfield");
-
       $dateParams = $this->getDateParams($project_id, $record, $surveyStartField, $surveyDurationField);
 
       $this->debug_to_console($dateParams, "Date params");
@@ -130,14 +125,6 @@ class EMA extends AbstractExternalModule
             print_r(', ');
           }
           print_r($sendTime);
-          // print_r('Time to send survey: ' . $sendTime);
-          // print_r("<br>");
-          // print_r('Flag to send survey: ' . $sendFlag);
-          // print_r("<br>");
-          // print_r('Time to expire survey: ' . $expireTime);
-          // print_r("<br>");
-          // print_r('Flag to expire survey: ' . $expireFlag);
-          // print_r("<br>");
         }
 
         print_r("<br>");
@@ -383,7 +370,6 @@ class EMA extends AbstractExternalModule
     $inputTime = strtotime($inputTime);
   
     if ($inputTime <= $currentTime) {
-      $this->debug_to_console("ding", "isBeforeNow method");
       return true;
     }
 

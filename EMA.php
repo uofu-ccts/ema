@@ -266,57 +266,76 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function surveyScheduleChecker($cronInfo) {
+  function cron($cronInfo){
     foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
       $this->setProjectId($localProjectId);
   
       // Project specific method calls go here.
+      $cronStartTime = strtotime($this->getProjectSetting('cron-start-time'));
+      $cronEndTime = strtotime($this->getProjectSetting('cron-end-time'));
       $sendTimeFields = $this->getProjectSetting('send-time');
       $sendFlagFields = $this->getProjectSetting('send-flag');
       $expireTimeFields = $this->getProjectSetting('expire-time');
       $expireFlagFields = $this->getProjectSetting('expire-flag');
       $surveyCompleteFields = $this->getProjectSetting('survey-complete');
+    
+      $currentTime = time();
+      $log = [];
+      if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime) {
+        $response = $this->surveyScheduleChecker($this->project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
-      $todaysRecords = $this->getTodaysRecords($this->project_id, $this->sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
+        array_push($log, "$this->project_id cron ran with response: $response. \n");
+      }
+      else {
+        array_push($log, "Outside of set hours for $this->project_id. \n");
+      }
+    }
 
-      $dataToSave = [];
-      foreach ($todaysRecords as $recordKey => $record) {
-        $dataToSave[$recordKey] = [];
-        foreach($record as $eventKey => $event) {
-          $dataToSave[$recordKey][$eventKey] = [];
-          for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
-            $currentSendTime = $event[$sendTimeFields[$currentSurvey]];
-            $currentExpireTime = $event[$expireTimeFields[$currentSurvey]];
+    $logText = implode($log);
 
-            // send surveys that have hit time and haven't been sent yet
-            if ($this->isBeforeNow($currentSendTime) && $event[$sendTimeFields[$currentSurvey]] != 1) {
-              $dataToSave[$recordKey][$eventKey][$sendFlagFields[$currentSurvey]] = 1;
-            }
+    return "The \"{$cronInfo['cron_description']}\" cron job completed with the following log: $logText";
+  }
 
-            // has survey been completed? mark that
-            if ($event[$surveyCompleteFields[$currentSurvey]] == 1) {
-              $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 2;
-            }
+  function surveyScheduleChecker($project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields) {
+    
+    $todaysRecords = $this->getTodaysRecords($project_id, $this->sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
-            // has survey reached expiration time before completion? mark that
-            if ($this->isBeforeNow($currentExpireTime) && $event[$surveyCompleteFields[$currentSurvey]] != 1) {
-              $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 1;
-            }
+    $dataToSave = [];
+    foreach ($todaysRecords as $recordKey => $record) {
+      $dataToSave[$recordKey] = [];
+      foreach($record as $eventKey => $event) {
+        $dataToSave[$recordKey][$eventKey] = [];
+        for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+          $currentSendTime = $event[$sendTimeFields[$currentSurvey]];
+          $currentExpireTime = $event[$expireTimeFields[$currentSurvey]];
 
-            if ($currentSurvey == count($sendTimeFields)-1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0 ) {
-              // last survey has been flagged expired or completed, flag entire instrument for this event complete
-              $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 1;
-            }
+          // send surveys that have hit time and haven't been sent yet
+          if ($this->isBeforeNow($currentSendTime) && $event[$sendTimeFields[$currentSurvey]] != 1) {
+            $dataToSave[$recordKey][$eventKey][$sendFlagFields[$currentSurvey]] = 1;
+          }
+
+          // has survey been completed? mark that
+          if ($event[$surveyCompleteFields[$currentSurvey]] == 1) {
+            $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 2;
+          }
+
+          // has survey reached expiration time before completion? mark that
+          if ($this->isBeforeNow($currentExpireTime) && $event[$surveyCompleteFields[$currentSurvey]] != 1) {
+            $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 1;
+          }
+
+          if ($currentSurvey == count($sendTimeFields)-1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0 ) {
+            // last survey has been flagged expired or completed, flag entire instrument for this event complete
+            $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 1;
           }
         }
       }
-
-      $response = $this->saveToRedcap($this->project_id, $dataToSave);
-      $responseText = implode($response);
-
     }
+
+    $response = $this->saveToRedcap($project_id, $dataToSave);
+    $responseText = implode($response);
   
-    return "The \"{$cronInfo['cron_description']}\" cron job completed with the following response: $responseText.";
+    return $responseText;
   }
 
   function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields) {

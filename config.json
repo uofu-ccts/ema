@@ -56,6 +56,18 @@
        "type": "descriptive"
     },
     {
+      "key": "cron-start-time",
+      "name": "Earliest time that a survey would be sent during the day",
+      "required": true,
+      "type": "time"
+    },
+    {
+      "key": "cron-end-time",
+      "name": "Latest time that a survey would be sent during the day",
+      "required": true,
+      "type": "time"
+    },
+    {
       "key": "schedule",
       "name": "Schedule Generation Parameters",
       "required": true,

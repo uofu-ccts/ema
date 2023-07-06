@@ -28,13 +28,6 @@
         "icon": "link",
         "url": "schedule_generator.php",
         "show-header-and-footer": true
-      },
-      {
-        "name": "Cron Tester",
-        "key": "cronTester",
-        "icon": "link",
-        "url": "cron_tester.php",
-        "show-header-and-footer": true
       }
 		],
 		"control-center": [
@@ -43,6 +36,16 @@
 
 	"no-auth-pages": [
 	],
+
+  "cron": [
+    {
+      "cron_name": "surveyScheduleChecker",
+      "cron_description": "Cron that runs every minute to check schedules and mark appropriate flags for today's survey",
+      "method": "cron",
+      "cron_frequency": "60",
+      "cron_max_run_time": "86400"
+    }
+  ],
 
 	"project-settings": [
     {
@@ -118,7 +121,9 @@
         }
       ]
     }
- ],
+  ],
+
+  
 
 	"compatibility": {
 		"php-version-min": "",

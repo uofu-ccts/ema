@@ -352,8 +352,6 @@ class EMA extends AbstractExternalModule
       array_push($fields, $currentField);
     }
 
-    $this->debug_to_console($fields);
-
     $params = array(
       'project_id' => $project_id,
       'return_format' => 'array',
@@ -376,7 +374,7 @@ class EMA extends AbstractExternalModule
     return false;
   }
 
-  function debug_to_console($data, $text='Debug Object',) {
+  function debug_to_console($data, $text='Debug Object') {
     $output = json_encode($data);
     if (is_array($output))
         $output = implode(',', $output);

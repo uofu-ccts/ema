@@ -37,11 +37,11 @@
 	"no-auth-pages": [
 	],
 
-  "cron": [
+  "crons": [
     {
-      "cron_name": "surveyScheduleChecker",
+      "cron_name": "ema_survey_checker",
       "cron_description": "Cron that runs every minute to check schedules and mark appropriate flags for today's survey",
-      "method": "cron",
+      "method": "cronStarter",
       "cron_frequency": "60",
       "cron_max_run_time": "86400"
     }
@@ -122,8 +122,6 @@
       ]
     }
   ],
-
-  
 
 	"compatibility": {
 		"php-version-min": "",

@@ -266,28 +266,28 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function cron($cronInfo){
+  function cronStarter($cronInfo){
     foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
       $this->setProjectId($localProjectId);
   
       // Project specific method calls go here.
-      $cronStartTime = strtotime($this->getProjectSetting('cron-start-time'));
-      $cronEndTime = strtotime($this->getProjectSetting('cron-end-time'));
-      $sendTimeFields = $this->getProjectSetting('send-time');
-      $sendFlagFields = $this->getProjectSetting('send-flag');
-      $expireTimeFields = $this->getProjectSetting('expire-time');
-      $expireFlagFields = $this->getProjectSetting('expire-flag');
-      $surveyCompleteFields = $this->getProjectSetting('survey-complete');
+      $cronStartTime = strtotime($this->getProjectSetting('cron-start-time', $localProjectId));
+      $cronEndTime = strtotime($this->getProjectSetting('cron-end-time', $localProjectId));
+      $sendTimeFields = $this->getProjectSetting('send-time', $localProjectId);
+      $sendFlagFields = $this->getProjectSetting('send-flag', $localProjectId);
+      $expireTimeFields = $this->getProjectSetting('expire-time', $localProjectId);
+      $expireFlagFields = $this->getProjectSetting('expire-flag', $localProjectId);
+      $surveyCompleteFields = $this->getProjectSetting('survey-complete', $localProjectId);
     
       $currentTime = time();
       $log = [];
       if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime) {
-        $response = $this->surveyScheduleChecker($this->project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
+        $response = $this->surveyScheduleChecker($localProjectId, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
-        array_push($log, "$this->project_id cron ran with response: $response. \n");
+        array_push($log, "$localProjectId cron ran with response: $response. \n");
       }
       else {
-        array_push($log, "Outside of set hours for $this->project_id. \n");
+        array_push($log, "Outside of set hours for $localProjectId. \n");
       }
     }
 
@@ -326,7 +326,7 @@ class EMA extends AbstractExternalModule
 
           if ($currentSurvey == count($sendTimeFields)-1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0 ) {
             // last survey has been flagged expired or completed, flag entire instrument for this event complete
-            $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 1;
+            $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 2;
           }
         }
       }

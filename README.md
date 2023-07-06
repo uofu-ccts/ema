@@ -86,21 +86,24 @@ Second, you will have to select the following fields:
 You will have a set of these for each survey sent during the day.
 
 If you are following the previous example of two surveys a day, it will be like the following:
-1. Field to SOURCE Time to Start Survey: ema_set_start_survey_1 - Set time to start survey.
-1. Survey time to send field: ema_time_send_survey_1 - First survey, Time to send
-1. Survey send flag field: ema_send_survey_1 - Flag, send first survey
-1. Field to SOURCE Time to Expire Survey: ema_set_expire_survey_1 - Set time to expire survey.
-1. Field to SAVE Survey time to expire: ema_time_expire_survey_1 - First survey, expiration time
-1. Survey expire flag field: ema_expire_survey_1 - Flag, expire first survey
-1. Survey completion field: survey_1_complete - Complete?
 
-2. Field to SOURCE Time to Start Survey: ema_set_start_survey_2 - Set time to start survey.
-2. Survey time to send field: ema_time_send_survey_2 - Second survey, Time to send
-2. Survey send flag field: ema_send_survey_2 - Flag, send second survey
-2. Field to SOURCE Time to Expire Survey: ema_set_expire_survey_2 - Set time to expire survey.
-2. Field to SAVE Survey time to expire: ema_time_expire_survey_2 - Second survey, expiration time
-2. Survey expire flag field: ema_expire_survey_2 - Flag, expire second survey
-2. Survey completion field: survey_2_complete - Complete?
+First set
+- Field to SOURCE Time to Start Survey: ema_set_start_survey_1 - Set time to start survey.
+- Survey time to send field: ema_time_send_survey_1 - First survey, Time to send
+- Survey send flag field: ema_send_survey_1 - Flag, send first survey
+- Field to SOURCE Time to Expire Survey: ema_set_expire_survey_1 - Set time to expire - survey.
+- Field to SAVE Survey time to expire: ema_time_expire_survey_1 - First survey, expiration time
+- Survey expire flag field: ema_expire_survey_1 - Flag, expire first survey
+- Survey completion field: survey_1_complete - Complete?
+
+Second set
+- Field to SOURCE Time to Start Survey: ema_set_start_survey_2 - Set time to start survey.
+- Survey time to send field: ema_time_send_survey_2 - Second survey, Time to send
+- Survey send flag field: ema_send_survey_2 - Flag, send second survey
+- Field to SOURCE Time to Expire Survey: ema_set_expire_survey_2 - Set time to expire survey.
+- Field to SAVE Survey time to expire: ema_time_expire_survey_2 - Second survey, expiration time
+- Survey expire flag field: ema_expire_survey_2 - Flag, expire second survey
+- Survey completion field: survey_2_complete - Complete?
 
 Once the fields are selected, click Save.
 

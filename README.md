@@ -120,7 +120,7 @@ Once scheduled, the randomly generated survey times will be saved in the corresp
 
 The module will then check every minute to see if any survey schedules for today correspond to the current time. If it does, it will mark the "send" flag for that survey as "True". This field should be used in the logic for automated survey invitations to send out surveys to participants.
 
-The module will also check every minute to see if any surveys need to be expired. If it does, it will mark the "expire" flag for that survey as "Survey time expired". This field should be used in the branching logic to "expire" the actual surveys send out to participants.
+The module will also check every minute to see if any surveys need to be expired. If it does, it will mark the "expire" flag for that survey as "Survey time expired". This field should be used in the branching logic to "expire" the actual surveys sent out to participants.
 
 If a participant completes a survey before the expiration time, the module will detect this at expiration time and mark the "expire" flag for that survey as "Survey completed before expiration".
 

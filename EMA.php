@@ -94,7 +94,7 @@ class EMA extends AbstractExternalModule
       for ( $currentDay=1; $currentDay <= $numDays; $currentDay++ ) {
 
         $currentRedcapEvent = 'day_' . $currentDay . '_arm_1';
-        $currentSurveyDate = $startDate->add(new \DateInterval('P' . $currentDay-1 . 'D'))->format('Y-m-d');
+        $currentSurveyDate = $startDate->add(new \DateInterval('P' . ($currentDay-1) . 'D'))->format('Y-m-d');
 
         $unique_event_id = \REDCap::getEventIdFromUniqueEvent($currentRedcapEvent);
 

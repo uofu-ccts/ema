@@ -174,7 +174,12 @@ class EMA extends AbstractExternalModule
     $setup_records = $this->getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField);
     $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
 
+    $this->debug_to_console($setup_records, "Records with setup instrument completed");
+    $this->debug_to_console($scheduled_records, "Records with schedule completed");
+
     $records = array_diff($setup_records, $scheduled_records);
+
+    $this->debug_to_console($records, "Intersecting records");
 
     return $records;
   }

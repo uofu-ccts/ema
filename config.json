@@ -71,6 +71,12 @@
       "type": "time"
     },
     {
+      "key": "test-event",
+      "name": "If the project has a event to test survey dissemination, select the event here. The event must have all the required instruments and fields as well.",
+      "required": false,
+      "type": "event-list"
+    },
+    {
       "key": "schedule",
       "name": "Schedule Generation Parameters",
       "required": true,

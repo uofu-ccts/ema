@@ -131,7 +131,7 @@ class EMA extends AbstractExternalModule
         print_r("<br>");
       }
     }
-
+    print_r("<br>");
     return $dataToSave;
   }
 
@@ -175,13 +175,19 @@ class EMA extends AbstractExternalModule
 
       $today = date("Y-m-d");
 
-      $unique_event_id = \REDCap::getEventIdFromUniqueEvent($testEvent);
+      $this->debug_to_console($today, "Today");
+      $this->debug_to_console($testEvent, "Test event");
+
+      $unique_event_id = $testEvent;
+      $testEventName = \REDCap::getEventNames(true, true, $testEvent);
+
+      $this->debug_to_console($unique_event_id, "Unique event id");
 
       $dataToSave[$record][$unique_event_id] = [];
 
       $dataToSave[$record][$unique_event_id][$sendDateField] = $today;
 
-      print_r('Survey event name: ' . $testEvent);
+      print_r('Survey event name: ' . $testEventName);
       print_r("<br>");
       print_r('Scheduled survey date: ' . $today);
       print_r("<br>");
@@ -208,6 +214,7 @@ class EMA extends AbstractExternalModule
 
       print_r("<br>");
     }
+    print_r("<br>");
 
     return $dataToSave;
   }

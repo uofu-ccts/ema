@@ -36,6 +36,8 @@ $testDataToSave = $module->generateTestSchedules($records,
                                                   $module->errorLog
                                                   );
 
+$testResponse = $module->saveToRedcap($module->project_id, $testDataToSave);
+
 $dataToSave = $module->generateSchedules($records, 
                                           $module->project_id, 
                                           $module->surveyStartField, 
@@ -51,7 +53,5 @@ $dataToSave = $module->generateSchedules($records,
                                         );
 
 $response = $module->saveToRedcap($module->project_id, $dataToSave);
-
-print_r($response);
 
 

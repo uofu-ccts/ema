@@ -16,6 +16,7 @@ class EMA extends AbstractExternalModule
   //prescribed events
   public $setupEvent = "survey_setup_arm_1";
   public $firstDayEvent = "day_1_arm_1";
+  public $testEvent = "";
 
   //list of fields, will be populated by getFieldNames
   public $setupCompletionField = "ema_survey_setup_complete";
@@ -48,6 +49,8 @@ class EMA extends AbstractExternalModule
     $this->expireRangeFields = $this->getProjectSetting('expire-range', $project_id);
     $this->expireTimeFields = $this->getProjectSetting('expire-time', $project_id);
     $this->expireFlagFields = $this->getProjectSetting('expire-flag', $project_id);
+
+    $this->testEvent = $this->getProjectSetting('test-event', $project_id);
   }
 
   function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog) {
@@ -55,8 +58,6 @@ class EMA extends AbstractExternalModule
     foreach ($records as $record) {
 
       $dateParams = $this->getDateParams($project_id, $record, $surveyStartField, $surveyDurationField);
-
-      $this->debug_to_console($dateParams, "Date params");
 
       if (!$dateParams[$surveyDurationField]) {
         array_push($errorLog, "$surveyDurationField is missing for record $record. Moving on to next record...");
@@ -129,6 +130,83 @@ class EMA extends AbstractExternalModule
 
         print_r("<br>");
       }
+    }
+
+    return $dataToSave;
+  }
+
+  function generateTestSchedules($records, $project_id, $testEvent, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog) {
+    $dataToSave = [];
+    foreach ($records as $record) {
+
+      $dateParams = $this->getDateParams($project_id, $record, $surveyStartField, $surveyDurationField);
+
+      if (!$dateParams[$surveyDurationField]) {
+        array_push($errorLog, "$surveyDurationField is missing for record $record. Moving on to next record...");
+        continue;
+      }
+
+      if (!$dateParams[$surveyStartField]) {
+        array_push($errorLog, "$surveyStartField is missing for record $record. Moving on to next record...");
+        continue;
+      }
+
+      $startParams = $this->getTimeParams($project_id, $record, $startRangeFields);
+
+      if (count($startParams) != count($startRangeFields)) {
+        $errorText = implode($startRangeFields);
+        array_push($errorLog, "One of the $errorText is missing for record $record. Moving on to next record...");
+        continue;
+      }
+
+      $expireParams = $this->getTimeParams($project_id, $record, $expireRangeFields);
+
+      if (count($expireParams) != count($expireRangeFields)) {
+        $errorText = implode($expireRangeFields);
+        array_push($errorLog, "One of the $errorText is missing for record $record. Moving on to next record...");
+        continue;
+      }
+
+      $startDate = new \DateTimeImmutable($dateParams[$surveyStartField]);
+
+      print_r('<strong>Record ID: ' . $record . '</strong><br>');
+
+      $dataToSave[$record] = [];
+
+      $today = date("Y-m-d");
+
+      $unique_event_id = \REDCap::getEventIdFromUniqueEvent($testEvent);
+
+      $dataToSave[$record][$unique_event_id] = [];
+
+      $dataToSave[$record][$unique_event_id][$sendDateField] = $today;
+
+      print_r('Survey event name: ' . $testEvent);
+      print_r("<br>");
+      print_r('Scheduled survey date: ' . $today);
+      print_r("<br>");
+      print_r('Scheduled survey times: ');
+
+      for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+        $startTime = $startParams[$startRangeFields[$currentSurvey]];
+        $sendFlag = 1; // 1 = true, 0 = false
+        $expireTime = $expireParams[$expireRangeFields[$currentSurvey]];
+        $expireFlag = 0; // 1 = true, 0 = false
+
+        $sendTime = date("H:i");
+
+        $dataToSave[$record][$unique_event_id][$sendTimeFields[$currentSurvey]] = $sendTime;
+        $dataToSave[$record][$unique_event_id][$sendFlagFields[$currentSurvey]] = $sendFlag;
+        $dataToSave[$record][$unique_event_id][$expireTimeFields[$currentSurvey]] = $expireTime;
+        $dataToSave[$record][$unique_event_id][$expireFlagFields[$currentSurvey]] = $expireFlag;
+
+        if ($currentSurvey > 0) {
+          print_r(', ');
+        }
+        print_r($sendTime);
+      }
+
+      print_r("<br>");
     }
 
     return $dataToSave;

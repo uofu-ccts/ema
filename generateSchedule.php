@@ -21,6 +21,21 @@ $html = "<h5>Schedules were created for the following records.</h5><br>";
 
 print_r($html);
 
+$testDataToSave = $module->generateTestSchedules($records, 
+                                                  $module->project_id, 
+                                                  $module->testEvent,
+                                                  $module->surveyStartField, 
+                                                  $module->surveyDurationField, 
+                                                  $module->startRangeFields, 
+                                                  $module->expireRangeFields, 
+                                                  $module->sendDateField, 
+                                                  $module->sendTimeFields, 
+                                                  $module->sendFlagFields, 
+                                                  $module->expireTimeFields, 
+                                                  $module->expireFlagFields,
+                                                  $module->errorLog
+                                                  );
+
 $dataToSave = $module->generateSchedules($records, 
                                           $module->project_id, 
                                           $module->surveyStartField, 

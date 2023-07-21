@@ -54,7 +54,7 @@ EMA Survey Setup:
 - ema_survey_expire_2
 - ema_survey_setup_complete
 
-MA Survey Schedule:
+EMA Survey Schedule:
 - ema_survey_send_date
 - ema_time_send_survey_1
 - ema_send_survey_1

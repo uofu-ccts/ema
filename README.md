@@ -4,6 +4,10 @@
 
 This is an external module used to generate schedules for ecological momentary assessments (EMAs). The plugin page allows the user to generate a schedule with random times that surveys are sent to participants. A cron job in the background checks the scheduled times every minute, and marks surveys that should sent at that time.
 
+## Installation
+
+To install this external module, you will need filesystem access to the `modules` directory in your REDCap server. If you do not have access to this directory, contact your REDCap administration or IT team.
+
 ## Setup
 
 ### Required instruments and events
@@ -14,11 +18,17 @@ The following instruments are required:
 - EMA Survey Setup
 - EMA Survey Schedule
 
+![list of instruments example](images/instruments.png)
+
 The easiest way would be to import the instrument zip files that comes with this external module.
 
 The EMA Survey Setup instrument should be designated in the `survey_setup_arm_1` event.
 
 The EMA Survey Schedule instrument should exist in the events that also have the surveys, with the event names following the format `day_1_arm_1`, `day_2_arm_1`, `day_3_arm_1`, and so on. Make sure that the number of day_X events and the maximum number of surveys days is identical.
+
+![events example](images/eventsList.png)
+
+![instrument event designations example](images/designatedInstruments.png)
 
 ### Required fields
 
@@ -54,6 +64,8 @@ EMA Survey Setup:
 - ema_survey_expire_2
 - ema_survey_setup_complete
 
+![survey setup instrument example](images/surveySetup.png)
+
 EMA Survey Schedule:
 - ema_survey_send_date
 - ema_time_send_survey_1
@@ -65,6 +77,8 @@ EMA Survey Schedule:
 - ema_time_expire_survey_2
 - ema_expire_survey_2
 - ema_survey_schedule_complete
+
+![survey schedule instrument example](images/surveySchedule.png)
 
 If using the zip files, make sure to modify the @DEFAULT fields that have been set to make study operations less cumbersome.
 
@@ -84,6 +98,8 @@ Second, you will have to select the following fields:
 - Survey completion field (the completion field for the actual EMA survey beign sent to participants)
 
 You will have a set of these for each survey sent during the day.
+
+![configuration example](images/configuration.png)
 
 If you are following the previous example of two surveys a day, it will be like the following:
 

@@ -260,11 +260,11 @@ class EMA extends AbstractExternalModule
     $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
 
     $this->debug_to_console($setup_records, "Records with setup instrument completed");
-    $this->debug_to_console($scheduled_records, "Records with schedule completed");
+    $this->debug_to_console($scheduled_records, "Records with scheduling completed");
 
     $records = array_diff($setup_records, $scheduled_records);
 
-    $this->debug_to_console($records, "Intersecting records");
+    $this->debug_to_console($records, "Records needing scheduling");
 
     return $records;
   }
@@ -277,10 +277,12 @@ class EMA extends AbstractExternalModule
     $params = array(
       'project_id' => $project_id,
       'return_format' => 'array',
-      'fields' => array('record_id'),
+      'fields' => array('record_id', $setupCompletionField, $surveyStatusField),
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);
+
+    // $this->debug_to_console($data, "Data from Setup");
 
     $records = [];
     foreach ($data as $record) {
@@ -300,10 +302,12 @@ class EMA extends AbstractExternalModule
     $params = array(
       'project_id' => $project_id,
       'return_format' => 'array',
-      'fields' => array('record_id'),
+      'fields' => array('record_id', $scheduleCompletionField),
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);
+
+    // $this->debug_to_console($data, "Date from Schedule");
 
     $records = [];
     foreach ($data as $record) {

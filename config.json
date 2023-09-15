@@ -74,7 +74,8 @@
       "key": "test-event",
       "name": "If the project has a event to test survey dissemination, select the event here. The event must have all the required instruments and fields as well.",
       "required": false,
-      "type": "event-list"
+      "type": "event-list",
+      "autocomplete": true
     },
     {
       "key": "schedule",
@@ -87,43 +88,50 @@
           "key": "start-range",
           "name": "Field to SOURCE Time to Start Survey",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "send-time",
           "name": "Survey time to send field",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "send-flag",
           "name": "Survey send flag field",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "expire-range",
           "name": "Field to SOURCE Time to Expire Survey",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "expire-time",
           "name": "Field to SAVE Survey time to expire",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "expire-flag",
           "name": "Survey expire flag field",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         },
         {
           "key": "survey-complete",
           "name": "Survey completion field",
           "required": true,
-          "type": "field-list"
+          "type": "field-list",
+          "autocomplete": true
         }
       ]
     }

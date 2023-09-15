@@ -175,13 +175,13 @@ class EMA extends AbstractExternalModule
 
       $today = date("Y-m-d");
 
-      $this->debug_to_console($today, "Today");
-      $this->debug_to_console($testEvent, "Test event");
+      // $this->debug_to_console($today, "Today");
+      // $this->debug_to_console($testEvent, "Test event");
 
       $unique_event_id = $testEvent;
       $testEventName = \REDCap::getEventNames(true, true, $testEvent);
 
-      $this->debug_to_console($unique_event_id, "Unique event id");
+      // $this->debug_to_console($unique_event_id, "Unique event id");
 
       $dataToSave[$record][$unique_event_id] = [];
 
@@ -259,12 +259,12 @@ class EMA extends AbstractExternalModule
     $setup_records = $this->getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField);
     $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
 
-    $this->debug_to_console($setup_records, "Records with setup instrument completed");
-    $this->debug_to_console($scheduled_records, "Records with scheduling completed");
+    // $this->debug_to_console($setup_records, "Records with setup instrument completed");
+    // $this->debug_to_console($scheduled_records, "Records with scheduling completed");
 
     $records = array_diff($setup_records, $scheduled_records);
 
-    $this->debug_to_console($records, "Records needing scheduling");
+    // $this->debug_to_console($records, "Records needing scheduling");
 
     return $records;
   }

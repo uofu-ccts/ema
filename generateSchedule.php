@@ -49,6 +49,7 @@ $dataToSave = $module->generateSchedules($records,
                                           $module->sendFlagFields, 
                                           $module->expireTimeFields, 
                                           $module->expireFlagFields,
+                                          $module->expireBufferList,
                                           $module->errorLog
                                         );
 

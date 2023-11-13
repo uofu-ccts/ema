@@ -113,6 +113,34 @@
           "autocomplete": true
         },
         {
+          "key": "expire-buffer",
+          "name": "Minimum minutes before expiration that surveys be sent",
+          "required": true,
+          "type": "dropdown",
+          "choices": [
+            {
+              "value": "0",
+              "name": "0 minutes"
+            },
+            {
+              "value": "30",
+              "name": "30 minutes"
+            },
+            {
+              "value": "60",
+              "name": "60 minutes"
+            },
+            {
+              "value": "90",
+              "name": "90 minutes"
+            },
+            {
+              "value": "120",
+              "name": "120 minutes"
+            }
+          ]
+        },
+        {
           "key": "expire-time",
           "name": "Field to SAVE Survey time to expire",
           "required": true,

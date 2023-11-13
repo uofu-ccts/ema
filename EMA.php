@@ -32,6 +32,8 @@ class EMA extends AbstractExternalModule
   public $expireTimeFields = [];
   public $expireFlagFields = [];
 
+  public $expireBufferList = "";
+
   public function __construct() {
 
     parent::__construct(); // call parent (AbstractExternalModule) constructor
@@ -49,11 +51,12 @@ class EMA extends AbstractExternalModule
     $this->expireRangeFields = $this->getProjectSetting('expire-range', $project_id);
     $this->expireTimeFields = $this->getProjectSetting('expire-time', $project_id);
     $this->expireFlagFields = $this->getProjectSetting('expire-flag', $project_id);
+    $this->expireBufferList = $this->getProjectSetting('expire-buffer', $project_id);
 
     $this->testEvent = $this->getProjectSetting('test-event', $project_id);
   }
 
-  function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog) {
+  function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $expireBufferList, $errorLog) {
     $dataToSave = [];
     foreach ($records as $record) {
 
@@ -114,8 +117,9 @@ class EMA extends AbstractExternalModule
           $sendFlag = 0; // 1 = true, 0 = false
           $expireTime = $expireParams[$expireRangeFields[$currentSurvey]];
           $expireFlag = 0; // 1 = true, 0 = false
+          $expireBuffer = $expireBufferList[$currentSurvey];
 
-          $sendTime = $this->generateRandomTime($startTime, $expireTime);
+          $sendTime = $this->generateRandomTime($startTime, $expireTime, $expireBuffer);
 
           $dataToSave[$record][$unique_event_id][$sendTimeFields[$currentSurvey]] = $sendTime;
           $dataToSave[$record][$unique_event_id][$sendFlagFields[$currentSurvey]] = $sendFlag;
@@ -321,11 +325,21 @@ class EMA extends AbstractExternalModule
     return $records;
   }
 
-  function generateRandomTime($startTime, $endTime) {
+  function generateRandomTime($startTime, $endTime, $endBuffer) {
+
+    if (!$endBuffer) {
+      $endBuffer = 0;
+    }
+
     $startTimestamp = strtotime($startTime);
     $endTimestamp = strtotime($endTime);
+    $actualEndTime = $endTimestamp - ((int)$endBuffer * 60);
+
+    // $this->debug_to_console(date("H:i", $startTimestamp), "startTimestamp");
+    // $this->debug_to_console(date("H:i", $endTimestamp), "endTimestamp");
+    // $this->debug_to_console(date("H:i", $actualEndTime), "actualEndTime");
   
-    $randomTimestamp = mt_rand($startTimestamp, $endTimestamp);
+    $randomTimestamp = mt_rand($startTimestamp, $actualEndTime);
   
     return date('H:i', $randomTimestamp);
   }

@@ -4,9 +4,23 @@
 
 This is an external module used to generate schedules for ecological momentary assessments (EMAs). The plugin page allows the user to generate a schedule with random times that surveys are sent to participants. A cron job in the background checks the scheduled times every minute, and marks surveys that should sent at that time.
 
+## How the module works
+
+The module creates a list of records that have a completed Survey Setup instrument, and has no Survey Schedule instruments completed. This is the list of records where a schedule needs to be generated.
+
+The module will then create random send times that are within the specified parameters within the Survey Setup instrument. Usually, the potential time period is between the survey start time and the survey expiration time, but a buffer can be set within the module configuration page.
+
+The generated random send time will then be stored in the requisite Survey Schedule instrument for the specific event. By default, this will be the 90 days in which the surveys will be sent.
+
+The module then checks every minute to see if any of the surveys need to be sent out at that specific minute. If so, then it marks that specific survey to be sent. The actual communication is not done by the module, but by the core REDCap application (whether it be with email, or Twilio SMS). Please keep in mind that there may be delays in the delivery of University emails and SMS that the REDCap team has no control over.
+
+The module also checks every minute to see if any of the surveys need to be expired. If so, it then marks that specific survey as either expired, or completed before expiration (depending on the completion status of the survey). Once all surveys for the day are expired or completed, the survey will mark the Survey Schedule instrument for that day complete.
+
 ## Installation
 
 To install this external module, you will need filesystem access to the `modules` directory in your REDCap server. If you do not have access to this directory, contact your REDCap administration or IT team.
+
+Install this module by downloading the zip file of the release of interest, and placing it in the `modules` directory of your REDCap server.
 
 ## Setup
 
@@ -215,7 +229,7 @@ Branching logic for the third survey:
 
 ![survey 1 branching logic](images/survey1Branching.png)
 
-## How the module works
+## Survey scheduling process
 
 Once you have the module configurations set up, you can now start schedule the EMA surveys for your participants.
 

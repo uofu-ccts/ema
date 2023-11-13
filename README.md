@@ -118,11 +118,14 @@ Second, you will have to select the following fields:
 - Survey time to send field
 - Survey send flag field
 - Field to SOURCE Time to Expire Survey
+- Minimum minutes before expiration that surveys be sent
 - Field to SAVE Survey time to expire
 - Survey expire flag field
 - Survey completion field (the completion field for the actual EMA survey beign sent to participants)
 
 You will have a set of these for each survey sent during the day.
+
+Note: "Minimum minutes before expiration that surveys be sent" is a new field added as of version 1.2, and sets the buffer between a scheduled time and the expiration time. For example, if you want the surveys to be sent at least an hour before expiration, select "60 minutes".
 
 ![configuration example](images/configuration.png)
 

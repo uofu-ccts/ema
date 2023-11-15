@@ -10,6 +10,8 @@ The module creates a list of records that have a completed Survey Setup instrume
 
 The module will then create random send times that are within the specified parameters within the Survey Setup instrument. Usually, the potential time period is between the survey start time and the survey expiration time, but a buffer can be set within the module configuration page.
 
+For example, if you have three surveys to be sent out during the day (AM, PM, and Evening) that are set to expire at 12:59PM, 4:59PM, and 9:59PM, a 90 minute buffer will ensure that the latest a survey will be sent out will be 11:29PM, 3:29PM, and 8:29PM.
+
 The generated random send time will then be stored in the requisite Survey Schedule instrument for the specific event. By default, this will be the 90 days in which the surveys will be sent.
 
 The module then checks every minute to see if any of the surveys need to be sent out at that specific minute. If so, then it marks that specific survey to be sent. The actual communication is not done by the module, but by the core REDCap application (whether it be with email, or Twilio SMS). Please keep in mind that there may be delays in the delivery of University emails and SMS that the REDCap team has no control over.

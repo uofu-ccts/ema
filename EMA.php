@@ -6,7 +6,7 @@ use ExternalModules\AbstractExternalModule;
 
 class EMA extends AbstractExternalModule
 {
-  
+
   public $project_id = null;
   public $username = USERID; // a REDCap constant; see redcap_info() output on the dev doc page
   public $errorLog = [];
@@ -34,17 +34,18 @@ class EMA extends AbstractExternalModule
 
   public $expireBufferList = "";
 
-  public function __construct() {
+  public function __construct()
+  {
 
     parent::__construct(); // call parent (AbstractExternalModule) constructor
 
     $this->project_id = $this->getProjectId(); // defined in AbstractExternalModule; will return project_id or null
 
     $this->generatorUrl = $this->getUrl("generateSchedule.php?pid={$this->project_id}");
-
   }
 
-  function getFieldNames($project_id) {
+  function getFieldNames($project_id)
+  {
     $this->sendTimeFields = $this->getProjectSetting('send-time', $project_id);
     $this->sendFlagFields = $this->getProjectSetting('send-flag', $project_id);
     $this->startRangeFields = $this->getProjectSetting('start-range', $project_id);
@@ -56,7 +57,8 @@ class EMA extends AbstractExternalModule
     $this->testEvent = $this->getProjectSetting('test-event', $project_id);
   }
 
-  function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $expireBufferList, $errorLog) {
+  function generateSchedules($records, $project_id, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $expireBufferList, $errorLog)
+  {
     $dataToSave = [];
     foreach ($records as $record) {
 
@@ -95,10 +97,10 @@ class EMA extends AbstractExternalModule
 
       $dataToSave[$record] = [];
 
-      for ( $currentDay=1; $currentDay <= $numDays; $currentDay++ ) {
+      for ($currentDay = 1; $currentDay <= $numDays; $currentDay++) {
 
         $currentRedcapEvent = 'day_' . $currentDay . '_arm_1';
-        $currentSurveyDate = $startDate->add(new \DateInterval('P' . ($currentDay-1) . 'D'))->format('Y-m-d');
+        $currentSurveyDate = $startDate->add(new \DateInterval('P' . ($currentDay - 1) . 'D'))->format('Y-m-d');
 
         $unique_event_id = \REDCap::getEventIdFromUniqueEvent($currentRedcapEvent);
 
@@ -112,7 +114,7 @@ class EMA extends AbstractExternalModule
         print_r("<br>");
         print_r('Scheduled survey times: ');
 
-        for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+        for ($currentSurvey = 0; $currentSurvey < count($sendTimeFields); $currentSurvey++) {
           $startTime = $startParams[$startRangeFields[$currentSurvey]];
           $sendFlag = 0; // 1 = true, 0 = false
           $expireTime = $expireParams[$expireRangeFields[$currentSurvey]];
@@ -139,7 +141,8 @@ class EMA extends AbstractExternalModule
     return $dataToSave;
   }
 
-  function generateTestSchedules($records, $project_id, $testEvent, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog) {
+  function generateTestSchedules($records, $project_id, $testEvent, $surveyStartField, $surveyDurationField, $startRangeFields, $expireRangeFields, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $errorLog)
+  {
     $dataToSave = [];
     foreach ($records as $record) {
 
@@ -179,13 +182,8 @@ class EMA extends AbstractExternalModule
 
       $today = date("Y-m-d");
 
-      // $this->debug_to_console($today, "Today");
-      // $this->debug_to_console($testEvent, "Test event");
-
       $unique_event_id = $testEvent;
       $testEventName = \REDCap::getEventNames(true, true, $testEvent);
-
-      // $this->debug_to_console($unique_event_id, "Unique event id");
 
       $dataToSave[$record][$unique_event_id] = [];
 
@@ -197,7 +195,7 @@ class EMA extends AbstractExternalModule
       print_r("<br>");
       print_r('Scheduled survey times: ');
 
-      for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+      for ($currentSurvey = 0; $currentSurvey < count($sendTimeFields); $currentSurvey++) {
         $startTime = $startParams[$startRangeFields[$currentSurvey]];
         $sendFlag = 1; // 1 = true, 0 = false
         $expireTime = $expireParams[$expireRangeFields[$currentSurvey]];
@@ -223,9 +221,10 @@ class EMA extends AbstractExternalModule
     return $dataToSave;
   }
 
-  function getDateParams($project_id, $record, $surveyStartField, $surveyDurationField) {
+  function getDateParams($project_id, $record, $surveyStartField, $surveyDurationField)
+  {
     $event_id = \REDCap::getEventIdFromUniqueEvent($this->setupEvent);
-    
+
     $fields = array($surveyStartField, $surveyDurationField);
     $params = array(
       'project_id' => $project_id,
@@ -239,9 +238,10 @@ class EMA extends AbstractExternalModule
     return $data[$record][$event_id];
   }
 
-  function getTimeParams($project_id, $record, $rangeFields) {
+  function getTimeParams($project_id, $record, $rangeFields)
+  {
     $event_id = \REDCap::getEventIdFromUniqueEvent($this->setupEvent);
-    
+
     $fields = $rangeFields;
     $params = array(
       'project_id' => $project_id,
@@ -259,16 +259,12 @@ class EMA extends AbstractExternalModule
     Returns an array of records that need a survey schedule generated
     Uses getRecordsWithSetup and getRecordsWithSchedule, and finds list of records that have a complete Survey Setup instrument, but blank Survey Schedule instruments
   */
-  function getRecordsToSchedule($project_id, $setupCompletionField, $scheduleCompletionField, $surveyStatusField) {
+  function getRecordsToSchedule($project_id, $setupCompletionField, $scheduleCompletionField, $surveyStatusField)
+  {
     $setup_records = $this->getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField);
     $scheduled_records = $this->getRecordsWithSchedule($project_id, $scheduleCompletionField);
 
-    // $this->debug_to_console($setup_records, "Records with setup instrument completed");
-    // $this->debug_to_console($scheduled_records, "Records with scheduling completed");
-
     $records = array_diff($setup_records, $scheduled_records);
-
-    // $this->debug_to_console($records, "Records needing scheduling");
 
     return $records;
   }
@@ -276,7 +272,8 @@ class EMA extends AbstractExternalModule
   /*
     Returns a simple array of records that have a completed Survey Setup instrument
   */
-  function getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField) {
+  function getRecordsWithSetup($project_id, $setupCompletionField, $surveyStatusField)
+  {
     $filter = "[$this->setupEvent][$setupCompletionField] = '2' AND [$this->setupEvent][$surveyStatusField] = '1'";
     $params = array(
       'project_id' => $project_id,
@@ -285,8 +282,6 @@ class EMA extends AbstractExternalModule
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);
-
-    // $this->debug_to_console($data, "Data from Setup");
 
     $records = [];
     foreach ($data as $record) {
@@ -301,7 +296,8 @@ class EMA extends AbstractExternalModule
   /*
     Returns a simple array of records that have a non-blank Survey Schedule instrument for day 1 of surveys
   */
-  function getRecordsWithSchedule($project_id, $scheduleCompletionField) {
+  function getRecordsWithSchedule($project_id, $scheduleCompletionField)
+  {
     $filter = "[$this->firstDayEvent][$scheduleCompletionField] = '0' OR [$this->firstDayEvent][$scheduleCompletionField] = '1' OR [$this->firstDayEvent][$scheduleCompletionField] = '2'";
     $params = array(
       'project_id' => $project_id,
@@ -310,8 +306,6 @@ class EMA extends AbstractExternalModule
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);
-
-    // $this->debug_to_console($data, "Date from Schedule");
 
     $records = [];
     foreach ($data as $record) {
@@ -325,7 +319,8 @@ class EMA extends AbstractExternalModule
     return $records;
   }
 
-  function generateRandomTime($startTime, $endTime, $endBuffer) {
+  function generateRandomTime($startTime, $endTime, $endBuffer)
+  {
 
     if (!$endBuffer) {
       $endBuffer = 0;
@@ -335,16 +330,13 @@ class EMA extends AbstractExternalModule
     $endTimestamp = strtotime($endTime);
     $actualEndTime = $endTimestamp - ((int)$endBuffer * 60);
 
-    // $this->debug_to_console(date("H:i", $startTimestamp), "startTimestamp");
-    // $this->debug_to_console(date("H:i", $endTimestamp), "endTimestamp");
-    // $this->debug_to_console(date("H:i", $actualEndTime), "actualEndTime");
-  
     $randomTimestamp = mt_rand($startTimestamp, $actualEndTime);
-  
+
     return date('H:i', $randomTimestamp);
   }
 
-  function saveToRedcap($project_id, $dataToSave) {
+  function saveToRedcap($project_id, $dataToSave)
+  {
     $params = array(
       'project_id' => $project_id,
       'dataFormat' => 'array',
@@ -352,7 +344,7 @@ class EMA extends AbstractExternalModule
       'overwriteBehavior' => 'normal',
       'dateFormat' => 'YMD'
     );
-    
+
     $response = \REDCap::saveData($params);
 
     return $response;
@@ -361,10 +353,11 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function cronStarter($cronInfo){
-    foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
+  function cronStarter($cronInfo)
+  {
+    foreach ($this->getProjectsWithModuleEnabled() as $localProjectId) {
       $this->setProjectId($localProjectId);
-  
+
       // Project specific method calls go here.
       $cronStartTime = strtotime($this->getProjectSetting('cron-start-time', $localProjectId));
       $cronEndTime = strtotime($this->getProjectSetting('cron-end-time', $localProjectId));
@@ -373,15 +366,14 @@ class EMA extends AbstractExternalModule
       $expireTimeFields = $this->getProjectSetting('expire-time', $localProjectId);
       $expireFlagFields = $this->getProjectSetting('expire-flag', $localProjectId);
       $surveyCompleteFields = $this->getProjectSetting('survey-complete', $localProjectId);
-    
+
       $currentTime = time();
       $log = [];
       if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime) {
         $response = $this->surveyScheduleChecker($localProjectId, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
         array_push($log, "$localProjectId cron ran with response: $response. \n");
-      }
-      else {
+      } else {
         array_push($log, "Outside of set hours for $localProjectId. \n");
       }
     }
@@ -391,18 +383,21 @@ class EMA extends AbstractExternalModule
     return "The \"{$cronInfo['cron_description']}\" cron job completed with the following log: $logText";
   }
 
-  function surveyScheduleChecker($project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields) {
-    
+  function surveyScheduleChecker($project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields)
+  {
+
     $todaysRecords = $this->getTodaysRecords($project_id, $this->sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
     $dataToSave = [];
     foreach ($todaysRecords as $recordKey => $record) {
       $dataToSave[$recordKey] = [];
-      foreach($record as $eventKey => $event) {
+      foreach ($record as $eventKey => $event) {
         $dataToSave[$recordKey][$eventKey] = [];
-        for ( $currentSurvey=0; $currentSurvey < count($sendTimeFields); $currentSurvey++ ) {
+        for ($currentSurvey = 0; $currentSurvey < count($sendTimeFields); $currentSurvey++) {
           $currentSendTime = $event[$sendTimeFields[$currentSurvey]];
           $currentExpireTime = $event[$expireTimeFields[$currentSurvey]];
+
+          $surveyComplete = $this->isSurveyComplete($event, $surveyCompleteFields[$currentSurvey]);
 
           // send surveys that have hit time and haven't been sent yet
           if ($this->isBeforeNow($currentSendTime) && $event[$sendTimeFields[$currentSurvey]] != 1) {
@@ -410,16 +405,16 @@ class EMA extends AbstractExternalModule
           }
 
           // has survey been completed? mark that
-          if ($event[$surveyCompleteFields[$currentSurvey]] == 1) {
+          if ($surveyComplete) {
             $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 2;
           }
 
           // has survey reached expiration time before completion? mark that
-          if ($this->isBeforeNow($currentExpireTime) && $event[$surveyCompleteFields[$currentSurvey]] != 1) {
+          if ($this->isBeforeNow($currentExpireTime) && !$surveyComplete) {
             $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 1;
           }
 
-          if ($currentSurvey == count($sendTimeFields)-1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0 ) {
+          if ($currentSurvey == count($sendTimeFields) - 1 && $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] != 0) {
             // last survey has been flagged expired or completed, flag entire instrument for this event complete
             $dataToSave[$recordKey][$eventKey][$this->scheduleCompletionField] = 2;
           }
@@ -429,11 +424,12 @@ class EMA extends AbstractExternalModule
 
     $response = $this->saveToRedcap($project_id, $dataToSave);
     $responseText = implode($response);
-  
+
     return $responseText;
   }
 
-  function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields) {
+  function getTodaysRecords($project_id, $sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields)
+  {
     $todaysDate = date("Y-m-d");
 
     $filter = "[$sendDateField] = '$todaysDate'";
@@ -456,8 +452,11 @@ class EMA extends AbstractExternalModule
       array_push($fields, $currentField);
     }
 
-    foreach ($surveyCompleteFields as $currentField) {
-      array_push($fields, $currentField);
+    // surveyCompleteFields are an array of arrays, as multiple fields can be selected/configured
+    foreach ($surveyCompleteFields as $currentArray) {
+      foreach ($currentArray as $currentField) {
+        array_push($fields, $currentField);
+      }
     }
 
     $params = array(
@@ -471,10 +470,11 @@ class EMA extends AbstractExternalModule
     return $data;
   }
 
-  function isBeforeNow($inputTime) {
+  function isBeforeNow($inputTime)
+  {
     $currentTime = time();
     $inputTime = strtotime($inputTime);
-  
+
     if ($inputTime <= $currentTime) {
       return true;
     }
@@ -482,10 +482,21 @@ class EMA extends AbstractExternalModule
     return false;
   }
 
-  function debug_to_console($data, $text='Debug Object') {
+  function isSurveyComplete($eventData, $currentSurveyCompleteFields)
+  {
+    foreach ($currentSurveyCompleteFields as $currentField) {
+      if ($eventData[$currentField] == 2) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function debug_to_console($data, $text = 'Debug Object')
+  {
     $output = json_encode($data);
     if (is_array($output))
-        $output = implode(',', $output);
+      $output = implode(',', $output);
 
     echo "<script>console.log('" . $text . ": " . $output . "' );</script>";
   }

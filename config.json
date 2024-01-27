@@ -1,41 +1,45 @@
 {
-	"name": "EMA Schedule Generator",
+  "name": "EMA Schedule Generator",
 
-	"namespace": "Utah\\EMA",
+  "namespace": "Utah\\EMA",
 
-	"description": "This is an external module that takes in some dates, and generates random schedules for participant surveys.",
+  "description": "This is an external module that takes in some dates, and generates random schedules for participant surveys.",
 
-	"documentation": "README.md",
+  "documentation": "README.md",
 
-	"authors": [		{
-			"name": "Sumon Chattopadhyay",
-			"email": "sumon.chattopadhyay@utah.edu",
-			"institution": "University of Utah BMIC"
-		}
-	],
+  "authors": [
+    {
+      "name": "Sumon Chattopadhyay",
+      "email": "sumon.chattopadhyay@utah.edu",
+      "institution": "University of Utah BMIC"
+    }
+  ],
 
   "framework-version": 7,
 
-	"permissions": [
-    
-  ],
+  "permissions": [],
 
-	"links": {
-		"project": [
+  "links": {
+    "project": [
       {
         "name": "Generate schedule",
         "key": "scheduleGenerator",
         "icon": "link",
         "url": "schedule_generator.php",
         "show-header-and-footer": true
+      },
+      {
+        "name": "Test",
+        "key": "test",
+        "icon": "link",
+        "url": "test.php",
+        "show-header-and-footer": true
       }
-		],
-		"control-center": [
-		]
-	},
+    ],
+    "control-center": []
+  },
 
-	"no-auth-pages": [
-	],
+  "no-auth-pages": [],
 
   "crons": [
     {
@@ -47,16 +51,16 @@
     }
   ],
 
-	"project-settings": [
+  "project-settings": [
     {
       "key": "requirements",
       "name": "<p>The following fields must exist in the project in the required events for this external module to work.</p><p>'survey_setup_arm_1' event:</p><ul><li>ema_survey_start_date: survey start date</li><li>ema_survey_num_days: number of days to send surveys</li><li>ema_survey_status: survey status</li></ul><p>'day_X_arm_1' event (X denotes the day number):</p><ul><li>ema_survey_send_date: survey send date</li></ul>",
       "type": "descriptive"
     },
     {
-       "key": "instructions",
-       "name": "<p>Select the required fields below for the external module to retrieve and save relevant information. In general, if you imported the attached instruments, the selected fields will be:</p><ul><li>ema_set_start_survey_X: field to SOURCE time to start survey</li><li>ema_time_send_survey_X: survey time to send field</li><li>ema_send_survey_X: survey send flag field</li><li>ema_set_expire_survey_X: field to SOURCE time to expire survey</li><li>ema_time_expire_survey_X: survey time to expire field</li><li>ema_expire_survey_X: survey expire flag field</li></ul><p>X will be replaced with the number of surveys you want in a day.</p>",
-       "type": "descriptive"
+      "key": "instructions",
+      "name": "<p>Select the required fields below for the external module to retrieve and save relevant information. In general, if you imported the attached instruments, the selected fields will be:</p><ul><li>ema_set_start_survey_X: field to SOURCE time to start survey</li><li>ema_time_send_survey_X: survey time to send field</li><li>ema_send_survey_X: survey send flag field</li><li>ema_set_expire_survey_X: field to SOURCE time to expire survey</li><li>ema_time_expire_survey_X: survey time to expire field</li><li>ema_expire_survey_X: survey expire flag field</li></ul><p>X will be replaced with the number of surveys you want in a day.</p>",
+      "type": "descriptive"
     },
     {
       "key": "cron-start-time",
@@ -83,7 +87,7 @@
       "required": true,
       "type": "sub_settings",
       "repeatable": true,
-      "sub_settings":[
+      "sub_settings": [
         {
           "key": "start-range",
           "name": "Field to SOURCE Time to Start Survey",
@@ -159,16 +163,17 @@
           "name": "Survey completion field",
           "required": true,
           "type": "field-list",
-          "autocomplete": true
+          "autocomplete": true,
+          "repeatable": true
         }
       ]
     }
   ],
 
-	"compatibility": {
-		"php-version-min": "",
-		"php-version-max": "",
-		"redcap-version-min": "",
-		"redcap-version-max": ""
-	}
+  "compatibility": {
+    "php-version-min": "",
+    "php-version-max": "",
+    "redcap-version-min": "",
+    "redcap-version-max": ""
+  }
 }

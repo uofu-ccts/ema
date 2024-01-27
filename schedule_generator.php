@@ -6,10 +6,12 @@ echo RCView::h3([], "Schedule Generator");
 
 $module->getFieldNames($module->project_id);
 
-$records = $module->getRecordsToSchedule($module->project_id, 
-                                          $module->setupCompletionField, 
-                                          $module->scheduleCompletionField, 
-                                          $module->surveyStatusField);
+$records = $module->getRecordsToSchedule(
+  $module->project_id,
+  $module->setupCompletionField,
+  $module->scheduleCompletionField,
+  $module->surveyStatusField
+);
 
 $html = "Something went wrong. Please refresh the page.";
 if (count($records) > 0) {
@@ -36,8 +38,8 @@ if (count($records) > 0) {
     $table = $table . $row;
     $record_number += 1;
   }
-  $table = $table . 
-            "</tbody>
+  $table = $table .
+    "</tbody>
             </table>
             <a href='" . $module->generatorUrl . "'>
               <button type='submit' class='btn btn-success' id='allRecords' onclick='createSchedule()'>Generate schedule for all records</button>

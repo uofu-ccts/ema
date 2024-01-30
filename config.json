@@ -90,28 +90,14 @@
       "sub_settings": [
         {
           "key": "start-range",
-          "name": "Field to SOURCE Time to Start Survey",
-          "required": true,
-          "type": "field-list",
-          "autocomplete": true
-        },
-        {
-          "key": "send-time",
-          "name": "Survey time to send field",
-          "required": true,
-          "type": "field-list",
-          "autocomplete": true
-        },
-        {
-          "key": "send-flag",
-          "name": "Survey send flag field",
+          "name": "Start of Survey Time Period (from Survey Setup instrument)",
           "required": true,
           "type": "field-list",
           "autocomplete": true
         },
         {
           "key": "expire-range",
-          "name": "Field to SOURCE Time to Expire Survey",
+          "name": "End of Survey Time Period (Expiration Time) (from Survey Setup instrument)",
           "required": true,
           "type": "field-list",
           "autocomplete": true
@@ -145,22 +131,36 @@
           ]
         },
         {
+          "key": "send-time",
+          "name": "Scheduled Time to Send Survey (in Survey Schedule instrument)",
+          "required": true,
+          "type": "field-list",
+          "autocomplete": true
+        },
+        {
+          "key": "send-flag",
+          "name": "Send survey flag (in Survey Schedule instrument)",
+          "required": true,
+          "type": "field-list",
+          "autocomplete": true
+        },
+        {
           "key": "expire-time",
-          "name": "Field to SAVE Survey time to expire",
+          "name": "Scheduled Survey Expiration Time (in Survey Schedule instrument)",
           "required": true,
           "type": "field-list",
           "autocomplete": true
         },
         {
           "key": "expire-flag",
-          "name": "Survey expire flag field",
+          "name": "Survey expiration flag (in Survey Schedule instrument)",
           "required": true,
           "type": "field-list",
           "autocomplete": true
         },
         {
           "key": "survey-complete",
-          "name": "Survey completion field",
+          "name": "Survey completion field (in surveys sent to participants)",
           "required": true,
           "type": "field-list",
           "autocomplete": true,

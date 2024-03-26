@@ -353,7 +353,7 @@ class EMA extends AbstractExternalModule
   /** 
    * @param array $cronAttributes A copy of the cron's configuration block from config.json.
    */
-  function cronStarter($cronInfo)
+  function cronStarter() //$cronInfo)
   {
     foreach ($this->getProjectsWithModuleEnabled() as $localProjectId) {
       $this->setProjectId($localProjectId);
@@ -380,7 +380,8 @@ class EMA extends AbstractExternalModule
 
     $logText = implode($log);
 
-    return "The \"{$cronInfo['cron_description']}\" cron job completed with the following log: $logText";
+    // return "The \"{$cronInfo['cron_description']}\" cron job completed with the following log: $logText";
+    return "The cron job completed with the following log: $logText";
   }
 
   function surveyScheduleChecker($project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields)
@@ -452,10 +453,17 @@ class EMA extends AbstractExternalModule
       array_push($fields, $currentField);
     }
 
-    // surveyCompleteFields are an array of arrays, as multiple fields can be selected/configured
+    // surveyCompleteFields are sometimes array of arrays, as multiple fields can be selected/configured
     foreach ($surveyCompleteFields as $currentArray) {
-      foreach ($currentArray as $currentField) {
-        array_push($fields, $currentField);
+
+      // if it is an array of arrays, process accordingly
+      if (is_array($currentArray)) {
+        foreach ($currentArray as $currentField) {
+          array_push($fields, $currentField);
+        }
+      } else {
+        //it's a normal array, no need to go in another level
+        array_push($fields, $currentArray);
       }
     }
 
@@ -484,12 +492,24 @@ class EMA extends AbstractExternalModule
 
   function isSurveyComplete($eventData, $currentSurveyCompleteFields)
   {
-    foreach ($currentSurveyCompleteFields as $currentField) {
-      if ($eventData[$currentField] == 2) {
+
+    // if multiple survey completion fields, you get an array of completion fields, so process accordingly
+    if (is_array($currentSurveyCompleteFields)) {
+      foreach ($currentSurveyCompleteFields as $currentField) {
+        if ($eventData[$currentField] == 2) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      // only one survey completion field - not an array
+      if ($eventData[$currentSurveyCompleteFields] == 2) {
         return true;
+      } else {
+        return false;
       }
     }
-    return false;
   }
 
   function debug_to_console($data, $text = 'Debug Object')

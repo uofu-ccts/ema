@@ -27,13 +27,6 @@
         "icon": "link",
         "url": "schedule_generator.php",
         "show-header-and-footer": true
-      },
-      {
-        "name": "Testing page",
-        "key": "tester",
-        "icon": "link",
-        "url": "test.php",
-        "show-header-and-footer": true
       }
     ],
     "control-center": []

@@ -367,6 +367,9 @@ class EMA extends AbstractExternalModule
       $expireFlagFields = $this->getProjectSetting('expire-flag', $localProjectId);
       $surveyCompleteFields = $this->getProjectSetting('survey-complete', $localProjectId);
 
+      $this->debug_to_console($localProjectId, "cron localProjectId");
+      $this->debug_to_console($surveyCompleteFields, "cron surveyCompleteFields");
+
       $currentTime = time();
       $log = [];
       if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime) {
@@ -387,7 +390,12 @@ class EMA extends AbstractExternalModule
   function surveyScheduleChecker($project_id, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields)
   {
 
+    $this->debug_to_console($project_id, "project_id");
+    $this->debug_to_console($surveyCompleteFields, "surveyCompleteFields");
+
     $todaysRecords = $this->getTodaysRecords($project_id, $this->sendDateField, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
+
+    $this->debug_to_console($todaysRecords, "todaysRecords");
 
     $dataToSave = [];
     foreach ($todaysRecords as $recordKey => $record) {
@@ -399,6 +407,9 @@ class EMA extends AbstractExternalModule
           $currentExpireTime = $event[$expireTimeFields[$currentSurvey]];
 
           $surveyComplete = $this->isSurveyComplete($event, $surveyCompleteFields[$currentSurvey]);
+
+          $this->debug_to_console($surveyCompleteFields[$currentSurvey], "current_survey");
+          $this->debug_to_console($surveyComplete, "isSurveyComplete");
 
           // send surveys that have hit time and haven't been sent yet
           if ($this->isBeforeNow($currentSendTime) && $event[$sendTimeFields[$currentSurvey]] != 1) {
@@ -456,6 +467,7 @@ class EMA extends AbstractExternalModule
     // surveyCompleteFields are sometimes array of arrays, as multiple fields can be selected/configured
     foreach ($surveyCompleteFields as $currentArray) {
 
+      $this->debug_to_console(is_array($currentArray), "is_array");
       // if it is an array of arrays, process accordingly
       if (is_array($currentArray)) {
         foreach ($currentArray as $currentField) {
@@ -493,23 +505,28 @@ class EMA extends AbstractExternalModule
   function isSurveyComplete($eventData, $currentSurveyCompleteFields)
   {
 
+    $this->debug_to_console($currentSurveyCompleteFields, "current survey complete fields in isSurveyComplete");
+    $this->debug_to_console(is_array($currentSurveyCompleteFields), "Are there multiple survey sets");
+
     // if multiple survey completion fields, you get an array of completion fields, so process accordingly
     if (is_array($currentSurveyCompleteFields)) {
       foreach ($currentSurveyCompleteFields as $currentField) {
+
+        $this->debug_to_console($currentField, "currently checking");
+        $this->debug_to_console($eventData[$currentField], "status");
+
         if ($eventData[$currentField] == 2) {
           return true;
-        } else {
-          return false;
         }
       }
     } else {
       // only one survey completion field - not an array
       if ($eventData[$currentSurveyCompleteFields] == 2) {
         return true;
-      } else {
-        return false;
       }
     }
+
+    return false;
   }
 
   function debug_to_console($data, $text = 'Debug Object')

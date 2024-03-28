@@ -372,7 +372,10 @@ class EMA extends AbstractExternalModule
 
       $currentTime = time();
       $log = [];
-      if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime) {
+
+      // run cron from start time to 5 min after cron end time (+ 300 sec)
+      // this will make sure all surveys are expired at the end of the day
+      if ($currentTime >= $cronStartTime && $currentTime <= $cronEndTime + 300) {
         $response = $this->surveyScheduleChecker($localProjectId, $sendTimeFields, $sendFlagFields, $expireTimeFields, $expireFlagFields, $surveyCompleteFields);
 
         array_push($log, "$localProjectId cron ran with response: $response. \n");

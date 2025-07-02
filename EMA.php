@@ -419,8 +419,8 @@ class EMA extends AbstractExternalModule
             $dataToSave[$recordKey][$eventKey][$sendFlagFields[$currentSurvey]] = 1;
           }
 
-          // has survey been completed? mark that
-          if ($surveyComplete) {
+          // has survey been completed before expiration? mark that
+          if ($this->isBeforeNow($currentExpireTime) && $surveyComplete) {
             $dataToSave[$recordKey][$eventKey][$expireFlagFields[$currentSurvey]] = 2;
           }
 

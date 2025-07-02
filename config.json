@@ -37,7 +37,7 @@
   "crons": [
     {
       "cron_name": "ema_survey_checker",
-      "cron_description": "Cron that runs every minute to check schedules and mark appropriate flags for today's survey",
+      "cron_description": "Cron that runs every other minute to check schedules and mark appropriate flags for today's survey",
       "method": "cronStarter",
       "cron_frequency": "120",
       "cron_max_run_time": "3600"

@@ -1,6 +1,6 @@
 <?php
 
-use RCView;
+// use RCView;
 
 echo RCView::h3([], "Schedule Generator");
 

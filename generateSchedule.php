@@ -6,7 +6,7 @@
 $HtmlPage = new HtmlPage();
 $HtmlPage->ProjectHeader();
 
-use RCView;
+// use RCView;
 
 echo RCView::h3([], "Schedule Generator");
 

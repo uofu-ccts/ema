@@ -134,6 +134,9 @@ class EMA extends AbstractExternalModule
           print_r($sendTime);
         }
 
+        // need to set the schedule completion field for this event
+        $dataToSave[$record][$unique_event_id][$this->scheduleCompletionField] = 0; // 0 = incomplete
+
         print_r("<br>");
       }
     }
@@ -306,6 +309,8 @@ class EMA extends AbstractExternalModule
       'filterLogic' => $filter
     );
     $data = \REDCap::getData($params);
+
+    $this->debug_to_console($data, "getRecordsWithSchedule data");
 
     $records = [];
     foreach ($data as $record) {
